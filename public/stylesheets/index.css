@@ -1,0 +1,97 @@
+body {
+  padding-top: 40px;
+}
+
+#header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 40px;
+  right: 0;
+  background-color: #333;
+  color: #fff;
+  font-size: 18px;
+  line-height: 40px;
+  display: inline-block;
+  vertical-align: middle;
+  padding-left: 15px;
+  overflow: hidden;
+  z-index: 10;
+}
+
+#header a {
+  margin-left: 40px;
+  font-size: 16px;
+}
+
+#root {
+  display: flex;
+  justify-content: space-between;
+}
+
+.left-waper {
+  height: calc(100vh - 40px);
+  width: calc(50% - 5px);
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.15);
+}
+
+.right-waper {
+  height: calc(100vh - 40px);
+  width: calc(50% - 5px);
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.15);
+}
+
+#result {
+  height: 100%;
+  width: 100%;
+  flex: 1;
+}
+
+#js_monaco_container {
+  display: block;
+  transition: 0.2s;
+  overflow: hidden;
+  flex: 1;
+  box-shadow: 0 0 7px 0 rgba(0, 0, 0, 0.15);
+}
+
+#json_result_monaco_container {
+  display: block;
+  height: 120px;
+  transition: 0.2s;
+  overflow: hidden;
+  flex: 1;
+  box-shadow: 0 0 7px 0 rgba(0, 0, 0, 0.15);
+}
+
+#json_params_monaco_container {
+  display: block;
+  flex: 1;
+  transition: 0.2s;
+  overflow: hidden;
+  box-shadow: 0 0 7px 0 rgba(0, 0, 0, 0.15);
+}
+
+#result-html {
+  display: block;
+  height: 100%;
+  transition: 0.2s;
+  overflow: auto;
+  box-shadow: 0 0 7px 0 rgba(0, 0, 0, 0.15);
+}
+
+.layui-form-label {
+  width: auto;
+}
+
+.layui-form-item {
+  margin-bottom: 5px;
+}
+
+.layui-tab-item {
+  height: 100%;
+}

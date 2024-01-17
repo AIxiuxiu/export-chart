@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>图表生成</title>
+    <link rel="icon" href="/images/favicon.ico" />
+    <link rel="stylesheet" href="/layui/css/layui.css" />
+    <link rel="stylesheet" href="/stylesheets/style.css" />
+    <link rel="stylesheet" href="/stylesheets/index.css" />
+
+    <script src="/monaco-editor/min/vs/loader.js"></script>
+    <script src="/javascripts/editor.js"></script>
+    <script src="/javascripts/common.js"></script>
+    <script src="/layui/layui.js"></script>
+  </head>
+
+  <body>
+    <div id="header">
+      图表生成
+      <a href="/doc" target="_blank">文档</a>
+      <a href="https://www.makeapie.com/explore.html" target="_blank"
+        >Gallery</a
+      >
+    </div>
+    <div id="root">
+      <div class="left-waper">
+        <div
+          class="layui-tab"
+          style="flex: 1; display: flex; flex-direction: column; margin: 0"
+        >
+          <ul class="layui-tab-title">
+            <li class="layui-this">表单参数</li>
+            <li>JSON参数</li>
+          </ul>
+          <div class="layui-tab-content" style="flex: 1">
+            <div class="layui-tab-item layui-show">
+              <div style="display: flex; flex-direction: column; height: 100%">
+                <form class="layui-form" style="padding: 5px" action="">
+                  <div class="layui-form-item">
+                    <label class="layui-form-label">接口api</label>
+                    <div class="layui-input-inline" style="width: 230px">
+                      <select name="api">
+                        <option value="img">/img（图片base64字符）</option>
+                        <option value="url">/url（获取图片url）</option>
+                        <option value="html">/html（HTML文档）</option>
+                        <option value="svg">/svg (svg文档)</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="layui-form-item">
+                    <div class="layui-inline">
+                      <label class="layui-form-label">大小(宽*高)</label>
+                      <div class="layui-input-inline" style="width: 60px">
+                        <input
+                          type="number"
+                          name="width"
+                          required
+                          lay-verify="required"
+                          placeholder="宽度"
+                          autocomplete="off"
+                          class="layui-input"
+                          value="600"
+                        />
+                      </div>
+                      <div class="layui-form-mid">*</div>
+                      <div class="layui-input-inline" style="width: 60px">
+                        <input
+                          type="number"
+                          name="height"
+                          required
+                          lay-verify="required"
+                          placeholder="高度"
+                          autocomplete="off"
+                          class="layui-input"
+                          value="400"
+                        />
+                      </div>
+                    </div>
+                    <div class="layui-inline">
+                      <label class="layui-form-label">像素倍数</label>
+                      <div class="layui-input-inline" style="width: 60px">
+                        <input
+                          type="number"
+                          name="pixelRatio"
+                          placeholder="像素倍数"
+                          autocomplete="off"
+                          class="layui-input"
+                          value="2"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <div class="layui-form-item">
+                    <label class="layui-form-label">echarts主题</label>
+                    <div class="layui-input-inline" style="width: 180px">
+                      <select name="theme" lay-search>
+                        <option value=""></option>
+                        <% for (theme of themes ) { %>
+                        <option value="<%= theme %>"><%- theme %></option>
+                        <% } %>
+                      </select>
+                    </div>
+                    <div class="layui-input-inline">
+                      <button
+                        class="layui-btn"
+                        lay-submit
+                        lay-filter="formChart"
+                      >
+                        提交
+                      </button>
+                    </div>
+                  </div>
+                </form>
+                <div style="padding: 2px 15px">options参数</div>
+                <div id="js_monaco_container"></div>
+              </div>
+            </div>
+            <div class="layui-tab-item">
+              <div style="display: flex; flex-direction: column; height: 100%">
+                <form class="layui-form" style="padding: 5px" action="">
+                  <div class="layui-form-item">
+                    <label class="layui-form-label">接口api</label>
+                    <div class="layui-input-inline" style="width: 230px">
+                      <select name="api" lay-filter="api-select">
+                        <option value="img">/img(图片base64字符)</option>
+                        <option value="url">/url（获取图片url）</option>
+                        <option value="html">/html（HTML文档）</option>
+                        <option value="svg">/svg (svg文档)</option>
+                        <option value="gif">/gif（测试请勿使用）</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="layui-form-item">
+                    <div class="layui-input-inline">
+                      <button
+                        class="layui-btn"
+                        lay-submit
+                        lay-filter="formJson"
+                      >
+                        提交
+                      </button>
+                    </div>
+                  </div>
+                </form>
+                <div style="padding: 2px 15px">请求参数</div>
+                <div id="json_params_monaco_container"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="right-waper">
+        <div class="layui-card">
+          <div class="layui-card-header">请求结果</div>
+          <div id="json_result_monaco_container"></div>
+        </div>
+        <div class="layui-card" style="flex: 1; overflow: hidden">
+          <div class="layui-card-header">结果显示</div>
+          <div id="result-html" class="layui-card-body">结果显示</div>
+        </div>
+      </div>
+    </div>
+    <script>
+      layui.use(["element", "form"], function () {
+        var form = layui.form;
+        var element = layui.element; //Tab的切换功能，切换事件监听等，需要依赖element模块
+        var $ = layui.jquery;
+
+        //监听提交
+        form.on("submit(formChart)", function (data) {
+          if ("function" == typeof define && define.amd) {
+            delete define.amd;
+          }
+          var params = data.field;
+          params.options = Editor.getJSCode();
+          http(params);
+          return false;
+        });
+
+        form.on("submit(formJson)", function (data) {
+          if ("function" == typeof define && define.amd) {
+            delete define.amd;
+          }
+          var jsonParams = JSON.parse(Editor.getParamsJSONCode());
+          var params = Object.assign(data.field, jsonParams);
+          if (!params.options) {
+            params.options = Editor.getJSCode();
+          }
+          http(params);
+          return false;
+        });
+
+        form.on("select(api-select)", function (data) {
+          $.get(`/editorCode/${data.value}.json`, function (response) {
+            Editor.setParamsJSONCode(JSON.stringify(response, undefined, 2));
+          });
+          return false;
+        });
+
+        function http(params) {
+          $("#result-html").hide();
+          var api = params.api;
+          $.post(`/api/${api}`, params, function (response) {
+            if (response.code == 200) {
+              if (api == "img" || api == "url" || api == "gif") {
+                var img = document.createElement("img");
+                img.width = params.width;
+                img.height = params.height;
+                img.src = response.data;
+                $("#result-html").html(img);
+              } else if (api == "html" || api == "svg") {
+                $("#result-html").html(response.data);
+              }
+            } else {
+              $("#result-html").html(`${response.msg}<br>${response.data}`);
+            }
+            $("#result-html").show();
+            Editor.setResultJSONCode(JSON.stringify(response, undefined, 2));
+          }).fail(function (err) {
+            Editor.setResultJSONCode(JSON.stringify(err, undefined, 2));
+          });
+        }
+      });
+    </script>
+  </body>
+</html>
